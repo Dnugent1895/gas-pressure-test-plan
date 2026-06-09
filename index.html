@@ -272,6 +272,82 @@
 
     #jsonFileInput { display: none; }
 
+    .btn-timeline {
+      background: #6f42c1;
+      color: #fff;
+      border-color: #6f42c1;
+    }
+    .btn-timeline:hover { background: #5a32a3; }
+    .btn-timeline.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    #timelineView {
+      margin-top: 14px;
+    }
+
+    .timeline-phase {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin: 14px 0;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+    }
+
+    .timeline-phase summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+      background: #fff;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    .timeline-phase summary::-webkit-details-marker { display: none; }
+
+    .timeline-phase .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .timeline-phase .phase-body {
+      border-top: 1px solid var(--border);
+      padding: 14px 18px;
+    }
+
+    .timeline-phase .tl-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 7px;
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+
+    .timeline-phase .tl-item:hover { background: #f8fafc; }
+
+    .timeline-phase .tl-item label {
+      cursor: pointer;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
     @media print {
       body { background: #fff; }
       .container { max-width: none; padding: 12px; }
@@ -307,6 +383,7 @@
         <button id="collapseAll" type="button">Collapse all sections</button>
         <button id="resetProgress" type="button">Reset saved checklist</button>
         <button onclick="window.print()" type="button">Print</button>
+        <button class="btn-timeline" id="timelineToggle" type="button">Timeline View</button>
       </div>
       <div class="toolbar-right">
         <button class="btn-download" id="downloadJSON" type="button">Download Progress JSON</button>
@@ -788,6 +865,191 @@
         };
         reader.readAsText(file);
         fileInput.value = '';
+      });
+
+      var timelinePhases = [
+        { title: 'Already Completed', tasks: [
+          'schedule-ordered','part-gauge','part-tape'
+        ]},
+        { title: 'Tuesday Morning — Confirm Requirements', tasks: [
+          'schedule-tuesday-am','objective-meter','objective-house','objective-appliances',
+          'meter-confirm-county','meter-confirm-pressure','meter-confirm-utility',
+          'walk-schedule-inspection','walk-test-requirements'
+        ]},
+        { title: 'Tuesday Morning — Walk-Through & Parts', tasks: [
+          'walk-locate','walk-photo-valves','walk-photo-connections','walk-identify','walk-meter',
+          'appliance-fireplace','appliance-stove','appliance-dryer','appliance-hvac','appliance-water-heater',
+          'part-dope','part-adapters','part-extra-plugs',
+          'part-half-caps','part-half-plugs','part-threequarter-caps','part-threequarter-plugs',
+          'part-threeeighth-flare','part-half-flare','part-half-nipples','part-threequarter-nipples',
+          'part-half-valve','part-threequarter-valve',
+          'tool-leak-detector','tool-spray','tool-pipe-wrenches','tool-adjustable-wrenches',
+          'tool-pump','tool-light','tool-ppe','tool-tags','tool-log'
+        ]},
+        { title: 'Tuesday Afternoon — Preparation', tasks: [
+          'schedule-tuesday-pm','tue-stage-parts','tue-confirm-inspection',
+          'meter-appliances-off','meter-ventilate','meter-emergency-ready'
+        ]},
+        { title: 'Tuesday Afternoon — Shut Off & Disconnect', tasks: [
+          'tue-appliances-off','tue-meter-off','tue-no-meter-pressure',
+          'meter-gas-off','meter-house-side-identified','meter-utility-side-isolated',
+          'meter-gauge-house-side','meter-do-not-test-meter',
+          'bleed-meter-off','bleed-appliances-off','bleed-no-ignition','bleed-vent-safe','bleed-stop-if-odor',
+          'tue-cap-water-heater','tue-cap-hvac','tue-cap-dryer','tue-cap-stove','tue-cap-fireplace',
+          'tue-separate-house','tue-meter-isolated','tue-prep-gauge-connection'
+        ]},
+        { title: 'Tuesday Afternoon — Install Gauge & Pressurize', tasks: [
+          'tue-install-gauge','tue-sealant','tue-air-valve','tue-no-open-ports',
+          'tue-pressure-3','tue-pressure-5','tue-pressure-final'
+        ]},
+        { title: 'Tuesday Afternoon — Leak-Check & Monitor', tasks: [
+          'tue-leak-gauge','tue-leak-meter','tue-leak-water-heater','tue-leak-hvac',
+          'tue-leak-dryer','tue-leak-stove','tue-leak-fireplace','tue-leak-visible',
+          'tue-reach-pressure','tue-photo-gauge','tue-watch-drop','tue-fix-if-drop','tue-overnight-note'
+        ]},
+        { title: 'Wednesday — Inspection', tasks: [
+          'schedule-wednesday','inspect-morning-check','inspect-permit','inspect-gauge-visible',
+          'inspect-appliances-capped','inspect-holding','inspect-access'
+        ]},
+        { title: 'Wednesday Afternoon — Depressurize & Reconnect', tasks: [
+          'schedule-wednesday-pm',
+          'air-release-approved','air-release-controlled','air-zero-pressure','air-remove-gauge',
+          'after-release-pressure','after-remove-gauge','after-reconnect-meter',
+          'service-reconnect-meter','service-leak-meter',
+          'after-reconnect-water-heater','after-reconnect-hvac','after-reconnect-dryer',
+          'after-reconnect-stove','after-reconnect-fireplace',
+          'service-reconnect-appliances','service-leak-appliances','after-leak-check'
+        ]},
+        { title: 'Wednesday Afternoon — Purge & Restart', tasks: [
+          'after-purge','service-purge','after-restart','service-restart',
+          'after-confirm','service-observe','service-gas-odor-check'
+        ]},
+        { title: 'Final Verification', tasks: [
+          'final-county-confirmed','final-parts','final-photos','final-gas-off',
+          'final-water-heater','final-hvac','final-dryer','final-stove','final-fireplace',
+          'final-house-meter','final-meter-safety-section','final-gauge',
+          'final-pressurized','final-leak-checked','final-holding',
+          'final-passed','final-depressurized','final-meter-restored',
+          'final-reconnected','final-reconnect-leak','final-appliances-safe'
+        ]}
+      ];
+
+      var taskLabelMap = {};
+      checkboxes.forEach(function (box) {
+        var lbl = box.parentNode.querySelector('label');
+        if (lbl) { taskLabelMap[box.dataset.task] = lbl.textContent; return; }
+        var tr = box.closest('tr');
+        if (tr) {
+          var cells = Array.from(tr.querySelectorAll('td'));
+          taskLabelMap[box.dataset.task] = cells.slice(1).map(function (td) {
+            return td.textContent.trim();
+          }).join(' — ');
+        }
+      });
+
+      var timelineActive = false;
+
+      function buildTimelineView() {
+        document.querySelector('main').style.display = 'none';
+        var container = document.createElement('div');
+        container.id = 'timelineView';
+
+        timelinePhases.forEach(function (phase, pi) {
+          var det = document.createElement('details');
+          det.className = 'timeline-phase';
+          det.open = true;
+
+          var doneTasks = phase.tasks.filter(function (t) {
+            return localStorage.getItem(storagePrefix + 'task.' + t) === '1';
+          }).length;
+          var pct = phase.tasks.length ? Math.round((doneTasks / phase.tasks.length) * 100) : 0;
+
+          var summary = document.createElement('summary');
+          summary.innerHTML = '<span class="chevron">▶</span>' +
+            '<span class="phase-badge">' + (pi + 1) + '</span> ' +
+            phase.title +
+            '<span class="count-pill">' + doneTasks + '/' + phase.tasks.length + ' • ' + pct + '%</span>';
+          det.appendChild(summary);
+
+          var body = document.createElement('div');
+          body.className = 'phase-body';
+
+          phase.tasks.forEach(function (taskId) {
+            var label = taskLabelMap[taskId] || taskId;
+            var div = document.createElement('div');
+            div.className = 'tl-item';
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.dataset.task = taskId;
+            var saved = localStorage.getItem(storagePrefix + 'task.' + taskId);
+            if (saved === '1') cb.checked = true;
+            cb.addEventListener('change', function () {
+              saveCheckbox(cb);
+              updateTimelinePills();
+              updateTimelineProgress();
+            });
+            var lbl = document.createElement('label');
+            lbl.textContent = label;
+            lbl.addEventListener('click', function () { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); });
+            div.appendChild(cb);
+            div.appendChild(lbl);
+            body.appendChild(div);
+          });
+
+          det.appendChild(body);
+          container.appendChild(det);
+        });
+
+        document.querySelector('main').parentNode.appendChild(container);
+      }
+
+      function destroyTimelineView() {
+        var tl = document.getElementById('timelineView');
+        if (tl) tl.remove();
+        document.querySelector('main').style.display = '';
+        checkboxes.forEach(function (box) { loadCheckbox(box); });
+        updateProgress();
+      }
+
+      function updateTimelinePills() {
+        var container = document.getElementById('timelineView');
+        if (!container) return;
+        var phases = container.querySelectorAll('.timeline-phase');
+        phases.forEach(function (det) {
+          var boxes = Array.from(det.querySelectorAll('input[type="checkbox"]'));
+          var pill = det.querySelector('.count-pill');
+          if (!pill || !boxes.length) return;
+          var done = boxes.filter(function (b) { return b.checked; }).length;
+          var pct = Math.round((done / boxes.length) * 100);
+          pill.textContent = done + '/' + boxes.length + ' • ' + pct + '%';
+        });
+      }
+
+      function updateTimelineProgress() {
+        var container = document.getElementById('timelineView');
+        if (!container) return;
+        var allBoxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+        var total = allBoxes.length;
+        var done = allBoxes.filter(function (b) { return b.checked; }).length;
+        var percent = total === 0 ? 0 : Math.round((done / total) * 100);
+        progressText.textContent = percent + '%';
+        progressFill.style.width = percent + '%';
+        progressDetail.textContent = done + ' of ' + total + ' tasks complete';
+      }
+
+      var timelineBtn = document.getElementById('timelineToggle');
+      timelineBtn.addEventListener('click', function () {
+        timelineActive = !timelineActive;
+        if (timelineActive) {
+          buildTimelineView();
+          updateTimelineProgress();
+          timelineBtn.textContent = 'Section View';
+          timelineBtn.classList.add('active');
+        } else {
+          destroyTimelineView();
+          timelineBtn.textContent = 'Timeline View';
+          timelineBtn.classList.remove('active');
+        }
       });
 
       updateProgress();
