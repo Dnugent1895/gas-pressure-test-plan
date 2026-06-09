@@ -126,19 +126,6 @@
 
     button:hover { background: var(--primary-light); }
 
-    .btn-download {
-      background: #28a745;
-      color: #fff;
-      border-color: #28a745;
-    }
-    .btn-download:hover { background: #218838; }
-
-    .btn-load {
-      background: #007bff;
-      color: #fff;
-      border-color: #007bff;
-    }
-    .btn-load:hover { background: #0069d9; }
 
     .alert {
       border-left: 6px solid;
@@ -270,7 +257,6 @@
       border-radius: 999px;
     }
 
-    #jsonFileInput { display: none; }
 
     .btn-timeline {
       background: #6f42c1;
@@ -384,11 +370,6 @@
         <button id="resetProgress" type="button">Reset saved checklist</button>
         <button onclick="window.print()" type="button">Print</button>
         <button class="btn-timeline" id="timelineToggle" type="button">Timeline View</button>
-      </div>
-      <div class="toolbar-right">
-        <button class="btn-download" id="downloadJSON" type="button">Download Progress JSON</button>
-        <button class="btn-load" id="loadJSON" type="button">Load Progress JSON</button>
-        <input type="file" id="jsonFileInput" accept=".json"/>
       </div>
     </div>
   </div>
@@ -797,75 +778,6 @@
         updateProgress();
       });
 
-      document.getElementById('downloadJSON').addEventListener('click', function () {
-        var tasks = {};
-        checkboxes.forEach(function (box) {
-          tasks[box.dataset.task] = box.checked;
-        });
-        var sections = {};
-        detailsElements.forEach(function (det) {
-          sections[det.id] = det.open;
-        });
-        var data = {
-          planName: PLAN_NAME,
-          version: PLAN_VERSION,
-          exportedAt: new Date().toISOString(),
-          tasks: tasks,
-          sections: sections
-        };
-        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'gas-pressure-test-progress.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-
-      var fileInput = document.getElementById('jsonFileInput');
-
-      document.getElementById('loadJSON').addEventListener('click', function () {
-        fileInput.click();
-      });
-
-      fileInput.addEventListener('change', function () {
-        var file = fileInput.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            var data = JSON.parse(e.target.result);
-            if (!data || typeof data.tasks !== 'object') {
-              alert('Error: This file does not appear to be a valid progress JSON file.');
-              return;
-            }
-            if (data.tasks) {
-              checkboxes.forEach(function (box) {
-                if (data.tasks.hasOwnProperty(box.dataset.task)) {
-                  box.checked = !!data.tasks[box.dataset.task];
-                  saveCheckbox(box);
-                }
-              });
-            }
-            if (data.sections && typeof data.sections === 'object') {
-              detailsElements.forEach(function (det) {
-                if (data.sections.hasOwnProperty(det.id)) {
-                  det.open = !!data.sections[det.id];
-                  saveDetails(det);
-                }
-              });
-            }
-            updateProgress();
-            alert('Progress loaded successfully from "' + file.name + '".');
-          } catch (err) {
-            alert('Error loading progress file: ' + err.message);
-          }
-        };
-        reader.readAsText(file);
-        fileInput.value = '';
-      });
 
       var timelinePhases = [
         { title: 'Already Completed', tasks: [
