@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interactive Whole-House Natural Gas Pressure Test Plan</title>
+<style>
+    :root {
+      --primary: #1f3a5f;
+      --primary-light: #e9eef5;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #667085;
+      --border: #d0d5dd;
+      --warning-bg: #fff3cd;
+      --warning-border: #ffc107;
+      --danger-bg: #f8d7da;
+      --danger-border: #dc3545;
+      --success-bg: #d4edda;
+      --success-border: #28a745;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 0;
+      background: var(--bg);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .title-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 0;
+      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+    }
+
+    h1 {
+      color: var(--primary);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 6px 0 0 0;
+    }
+
+    .sticky-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0 0 14px 14px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.08);
+    }
+
+    .progress-wrap {
+      margin-bottom: 12px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 18px;
+      background: #eef2f6;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--primary);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    button:hover { background: var(--primary-light); }
+
+    .btn-download {
+      background: #28a745;
+      color: #fff;
+      border-color: #28a745;
+    }
+    .btn-download:hover { background: #218838; }
+
+    .btn-load {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+    .btn-load:hover { background: #0069d9; }
+
+    .alert {
+      border-left: 6px solid;
+      padding: 14px 16px;
+      margin: 14px 0;
+      border-radius: 8px;
+    }
+
+    .warning { background: var(--warning-bg); border-left-color: var(--warning-border); }
+    .danger { background: var(--danger-bg); border-left-color: var(--danger-border); }
+    .success { background: var(--success-bg); border-left-color: var(--success-border); }
+
+    details {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin: 14px 0;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 18px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary);
+      background: #fff;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .chevron {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.18s ease;
+      flex: 0 0 auto;
+    }
+
+    details[open] .chevron { transform: rotate(90deg); }
+
+    .section-body {
+      border-top: 1px solid var(--border);
+      padding: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px 0;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: var(--primary-light);
+      color: #1d2939;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+      margin: 12px 0;
+    }
+
+    .checklist li, .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 9px;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .checklist li:hover, .check-row:hover { background: #f8fafc; }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 1px;
+      flex: 0 0 auto;
+      cursor: pointer;
+    }
+
+    .checkbox-cell {
+      width: 64px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    table th:first-child {
+      width: 64px;
+      text-align: center;
+    }
+
+    table td:first-child input[type="checkbox"] {
+      display: block;
+      margin: 0 auto;
+    }
+
+    label { cursor: pointer; }
+
+    .muted { color: var(--muted); }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 4px 0 0 0;
+    }
+
+    .count-pill {
+      margin-left: auto;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      background: #f2f4f7;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    #jsonFileInput { display: none; }
+
+    @media print {
+      body { background: #fff; }
+      .container { max-width: none; padding: 12px; }
+      .title-card, details { box-shadow: none; }
+      .sticky-toolbar { position: static; box-shadow: none; }
+      button { display: none; }
+      details { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="title-card">
+    <h1>Interactive Whole-House Natural Gas Pressure Test Plan</h1>
+    <p class="subtitle">Tuesday prep + Wednesday county inspection plan. Your checkbox progress and collapsed/open sections save automatically in this browser.</p>
+  </div>
+
+  <div class="sticky-toolbar" id="stickyToolbar">
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <span>Overall Completion</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div aria-label="Overall completion" class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="small-note" id="progressDetail">0 of 0 tasks complete</p>
+    </div>
+    <div class="toolbar-buttons">
+      <div class="toolbar-left">
+        <button id="expandAll" type="button">Expand all sections</button>
+        <button id="collapseAll" type="button">Collapse all sections</button>
+        <button id="resetProgress" type="button">Reset saved checklist</button>
+        <button onclick="window.print()" type="button">Print</button>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn-download" id="downloadJSON" type="button">Download Progress JSON</button>
+        <button class="btn-load" id="loadJSON" type="button">Load Progress JSON</button>
+        <input type="file" id="jsonFileInput" accept=".json"/>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <details id="section-overview" open="">
+      <summary><span class="chevron">&#9654;</span> Overview &amp; Status</summary>
+      <div class="section-body">
+        <div class="alert warning">
+          <strong>Important:</strong> Confirm the exact pressure, test duration, gauge type, and appliance-disconnect requirements with El Dorado County before starting.
+        </div>
+        <div class="alert danger">
+          <strong>Safety Notice:</strong> Natural gas work can be dangerous. Do not pressure-test the gas meter, PG&amp;E side, or connected appliances. The goal is to test the house gas piping only. If you smell gas after returning service, leave the area and call 911 or PG&amp;E.
+        </div>
+        <p>This checklist covers a whole-house natural gas pressure test for county inspection. It assumes an existing ~30-year-old residence with five gas appliances: indoor fireplace, stove, dryer, HVAC/furnace, and water heater.</p>
+        <p><strong>Test concept:</strong> Shut off gas at the meter. Disconnect house-side piping from the meter. Disconnect and cap appliance branches. Install a pressure test gauge on the house-side piping. Pressurize with air to the county-required test pressure. The county inspector verifies the gauge holds pressure. After inspection, release test air, reconnect the system, leak-check, purge air, and restart appliances safely.</p>
+        <div class="alert warning">
+          <strong>Disclaimer:</strong> This is a planning and tracking tool, not a substitute for a licensed plumber, PG&amp;E requirements, or El Dorado County code. If gas odor is present after return to service, leave the area and call PG&amp;E or 911.
+        </div>
+      </div>
+    </details>
+
+    <details id="section-schedule" open="">
+      <summary><span class="chevron">&#9654;</span> Overall Schedule <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <table>
+          <tr><th>Done</th><th>Day</th><th>Task</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="schedule-ordered" type="checkbox"/></td><td><strong>Already Completed</strong></td><td>PSI gauge and gas-rated yellow PTFE tape ordered.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="schedule-tuesday-am" type="checkbox"/></td><td><strong>Tuesday Morning</strong></td><td>Schedule county inspection for Wednesday. Complete walk-through of all appliance connections and confirm remaining parts/supplies.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="schedule-tuesday-pm" type="checkbox"/></td><td><strong>Tuesday Afternoon</strong></td><td>Shut off gas, disconnect/cap appliances, install gauge, pressurize, and leak-check system.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="schedule-wednesday" type="checkbox"/></td><td><strong>Wednesday</strong></td><td>County inspection of pressurized gas piping.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="schedule-wednesday-pm" type="checkbox"/></td><td><strong>Wednesday Afternoon</strong></td><td>After inspection passes: depressurize, reconnect appliances, leak-check, purge air, and restart appliances safely.</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details id="section-objective" open="">
+      <summary><span class="chevron">&#9654;</span> Test Objective <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <p>The purpose is to pressure-test the <strong>house gas piping system</strong>, not the appliances, not the flexible appliance connectors, and not the gas meter.</p>
+        <div class="alert success">
+          <strong>Correct concept:</strong><br/>
+          Meter / utility side: shut off and isolated.<br/>
+          House piping side: disconnected from meter, capped at appliance branches, connected to pressure gauge, and pressurized with air.
+        </div>
+        <ul class="checklist">
+          <li><input data-task="objective-meter" type="checkbox"/><label>Do not pressurize the gas meter or PG&amp;E side.</label></li>
+          <li><input data-task="objective-house" type="checkbox"/><label>Only test the house-side gas piping.</label></li>
+          <li><input data-task="objective-appliances" type="checkbox"/><label>Disconnect/cap appliance branches rather than pressure-testing appliances.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="section-appliances" open="">
+      <summary><span class="chevron">&#9654;</span> Appliances Included <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <table>
+          <tr><th>Done</th><th>Appliance</th><th>Likely Location</th><th>Required Test Preparation</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="appliance-fireplace" type="checkbox"/></td><td>Indoor Fireplace</td><td>Living room / fireplace area</td><td>Shut off fireplace gas valve. Disconnect and cap accessible house-side gas line if possible.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="appliance-stove" type="checkbox"/></td><td>Stove</td><td>Kitchen</td><td>Pull stove carefully. Disconnect flex line. Cap or plug house-side gas valve or pipe.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="appliance-dryer" type="checkbox"/></td><td>Dryer</td><td>Laundry room</td><td>Disconnect flex line. Cap or plug house-side gas valve or pipe.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="appliance-hvac" type="checkbox"/></td><td>HVAC / Furnace</td><td>Attic, garage, closet, or crawlspace</td><td>Disconnect gas connection or union. Cap or plug house-side pipe or valve.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="appliance-water-heater" type="checkbox"/></td><td>Water Heater</td><td>Garage, closet, or mechanical area</td><td>Disconnect appliance connector. Cap or plug house-side gas pipe or valve.</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details id="section-parts" open="">
+      <summary><span class="chevron">&#9654;</span> Parts List <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <h3>Main Test Gauge Setup</h3>
+        <table>
+          <tr><th>Done</th><th>Item</th><th>Quantity</th><th>Status</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-gauge" type="checkbox"/></td><td>0&ndash;15 PSI gas pressure test gauge assembly with Schrader valve</td><td>1</td><td><strong>Ordered.</strong> Main county inspection gauge and air-fill point.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-tape" type="checkbox"/></td><td>Gas-rated yellow PTFE tape</td><td>1 roll</td><td><strong>Ordered.</strong> For tapered NPT pipe threads only.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-dope" type="checkbox"/></td><td>Gas-rated pipe dope / thread sealant</td><td>1 small can or tube</td><td>For sealing threaded gas fittings.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-adapters" type="checkbox"/></td><td>Adapters for house-side meter connection</td><td>As needed</td><td>To connect gauge assembly to house piping after disconnecting from meter.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-extra-plugs" type="checkbox"/></td><td>Extra black iron or brass plugs/caps</td><td>Assorted</td><td>For unused openings or gauge adapter setup.</td></tr>
+        </table>
+        <h3>Appliance Capping Parts</h3>
+        <table>
+          <tr><th>Done</th><th>Item</th><th>Suggested Quantity</th><th>Notes</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-half-caps" type="checkbox"/></td><td>1/2-inch black iron pipe caps</td><td>4</td><td>For capping male NPT pipe threads.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-half-plugs" type="checkbox"/></td><td>1/2-inch black iron pipe plugs</td><td>4</td><td>For plugging female NPT pipe threads.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-threequarter-caps" type="checkbox"/></td><td>3/4-inch black iron pipe caps</td><td>2</td><td>For larger pipe branches if present.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-threequarter-plugs" type="checkbox"/></td><td>3/4-inch black iron pipe plugs</td><td>2</td><td>For larger female threaded openings if present.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-threeeighth-flare" type="checkbox"/></td><td>3/8-inch flare caps</td><td>2</td><td>For smaller flare-type appliance connections.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-half-flare" type="checkbox"/></td><td>1/2-inch flare caps</td><td>4</td><td>Common for stove/dryer-style appliance connections.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-half-nipples" type="checkbox"/></td><td>Short 1/2-inch black iron nipples</td><td>2&ndash;4</td><td>Useful for adapting odd connections.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-threequarter-nipples" type="checkbox"/></td><td>Short 3/4-inch black iron nipples</td><td>1&ndash;2</td><td>Useful near meter or larger branches.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-half-valve" type="checkbox"/></td><td>1/2-inch gas shutoff valve</td><td>1 backup</td><td>In case an old appliance valve leaks or breaks.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="part-threequarter-valve" type="checkbox"/></td><td>3/4-inch gas shutoff valve</td><td>1 backup</td><td>Backup for larger branch or meter-side work.</td></tr>
+        </table>
+        <h3>Tools and Safety Supplies</h3>
+        <table>
+          <tr><th>Done</th><th>Item</th><th>Quantity</th><th>Purpose</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-leak-detector" type="checkbox"/></td><td>Gas leak detector solution</td><td>1 bottle</td><td>To check all fittings, caps, plugs, and reconnections.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-spray" type="checkbox"/></td><td>Spray bottle with soapy water</td><td>1</td><td>Backup leak-detection method.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-pipe-wrenches" type="checkbox"/></td><td>Pipe wrenches</td><td>2</td><td>Use one to hold back and one to turn.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-adjustable-wrenches" type="checkbox"/></td><td>Adjustable wrenches</td><td>2</td><td>For appliance connectors and smaller fittings.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-pump" type="checkbox"/></td><td>Bike pump or small compressor with regulator</td><td>1</td><td>To pressurize the system with air.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-light" type="checkbox"/></td><td>Flashlight or headlamp</td><td>1</td><td>For furnace, water heater, fireplace, and tight areas.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-ppe" type="checkbox"/></td><td>Gloves and eye protection</td><td>1 set</td><td>General safety while working and pressurizing.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-tags" type="checkbox"/></td><td>Painter's tape or tags</td><td>1 roll</td><td>Mark each appliance as disconnected/capped.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tool-log" type="checkbox"/></td><td>Notebook or phone photo log</td><td>1</td><td>Track every cap, plug, and reconnection.</td></tr>
+        </table>
+        <div class="alert warning"><strong>Important:</strong> NPT pipe caps/plugs and flare caps are not the same. Do not force the wrong cap onto the wrong fitting. Do not use tape or pipe dope on flare faces, union faces, compression fittings, or gasketed connections.</div>
+      </div>
+    </details>
+
+    <details id="section-walkthrough">
+      <summary><span class="chevron">&#9654;</span> Tuesday Morning Walk-Through <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <ul class="checklist">
+          <li><input data-task="walk-locate" type="checkbox"/><label>Locate each gas appliance: fireplace, stove, dryer, HVAC/furnace, and water heater.</label></li>
+          <li><input data-task="walk-photo-valves" type="checkbox"/><label>Take a photo of the shutoff valve at each appliance.</label></li>
+          <li><input data-task="walk-photo-connections" type="checkbox"/><label>Take a photo of the flex connector or hard-pipe connection.</label></li>
+          <li><input data-task="walk-identify" type="checkbox"/><label>Identify whether each connection is pipe thread, flare, union, or flex connector.</label></li>
+          <li><input data-task="walk-meter" type="checkbox"/><label>Confirm access to the gas meter and the house-side meter connection.</label></li>
+          <li><input data-task="walk-schedule-inspection" type="checkbox"/><label>Schedule the county inspection for Wednesday.</label></li>
+          <li><input data-task="walk-test-requirements" type="checkbox"/><label>Confirm county-required test pressure and duration.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="section-tuesday-pm" open="">
+      <summary><span class="chevron">&#9654;</span> Tuesday Afternoon Work Plan <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <h3>Step 1: Prepare and Stage</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-stage-parts" type="checkbox"/><label>Stage all parts, tools, caps, plugs, gauge, and leak-check supplies.</label></li>
+          <li><input data-task="tue-confirm-inspection" type="checkbox"/><label>Confirm county inspection is scheduled for Wednesday.</label></li>
+        </ul>
+        <h3>Step 2: Shut Off Gas at the Meter</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-appliances-off" type="checkbox"/><label>Turn off all gas appliances.</label></li>
+          <li><input data-task="tue-meter-off" type="checkbox"/><label>Shut off the gas at the meter/service valve.</label></li>
+          <li><input data-task="tue-no-meter-pressure" type="checkbox"/><label>Verify you will not pressurize the PG&amp;E meter or utility side.</label></li>
+        </ul>
+        <h3>Step 3: Disconnect and Cap Each Appliance</h3>
+        <table>
+          <tr><th>Done</th><th>Appliance</th><th>Action</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-cap-water-heater" type="checkbox"/></td><td>Water Heater</td><td>Turn off local valve. Disconnect appliance connector. Cap/plug house-side outlet.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-cap-hvac" type="checkbox"/></td><td>HVAC / Furnace</td><td>Turn off local valve. Disconnect gas connection or union. Cap/plug house-side outlet.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-cap-dryer" type="checkbox"/></td><td>Dryer</td><td>Turn off dryer gas valve. Disconnect flex line. Cap/plug house-side outlet.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-cap-stove" type="checkbox"/></td><td>Stove</td><td>Pull stove carefully. Turn off valve. Disconnect flex line. Cap/plug house-side outlet.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-cap-fireplace" type="checkbox"/></td><td>Indoor Fireplace</td><td>Turn off fireplace gas valve. Cap accessible house-side gas line if possible.</td></tr>
+        </table>
+        <div class="alert warning"><strong>Fireplace caution:</strong> The fireplace may be the most difficult appliance to cap if the connection is hidden or inaccessible. If you cannot clearly identify the safe cap point, stop and get guidance before pressurizing.</div>
+        <h3>Step 4: Disconnect House Piping from the Meter</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-separate-house" type="checkbox"/><label>Separate the house-side gas piping from the meter outlet.</label></li>
+          <li><input data-task="tue-meter-isolated" type="checkbox"/><label>Keep the meter and utility side isolated.</label></li>
+          <li><input data-task="tue-prep-gauge-connection" type="checkbox"/><label>Prepare the house-side piping connection for the test gauge.</label></li>
+        </ul>
+        <h3>Step 5: Install the Test Gauge</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-install-gauge" type="checkbox"/><label>Install the 0&ndash;15 PSI gas pressure test gauge assembly on the house-side piping.</label></li>
+          <li><input data-task="tue-sealant" type="checkbox"/><label>Use gas-rated tape or pipe dope only on tapered NPT threads.</label></li>
+          <li><input data-task="tue-air-valve" type="checkbox"/><label>Confirm the Schrader valve or air-fill valve is accessible.</label></li>
+          <li><input data-task="tue-no-open-ports" type="checkbox"/><label>Confirm there are no open ports.</label></li>
+        </ul>
+        <h3>Step 6: Pressurize Slowly</h3>
+        <table>
+          <tr><th>Done</th><th>Pressure</th><th>Action</th></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-pressure-3" type="checkbox"/></td><td>2&ndash;3 PSI</td><td>Stop and check the gauge/test assembly for leaks.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-pressure-5" type="checkbox"/></td><td>5 PSI</td><td>Stop and check caps/plugs at each appliance.</td></tr>
+          <tr><td class="checkbox-cell"><input data-task="tue-pressure-final" type="checkbox"/></td><td>10 PSI or county-required pressure</td><td>Stop pumping and watch the gauge.</td></tr>
+        </table>
+        <div class="alert danger"><strong>Do not over-pressurize.</strong> Use only the pressure required by the county.</div>
+        <h3>Step 7: Leak-Check All Connections</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-leak-gauge" type="checkbox"/><label>Spray gauge/test assembly.</label></li>
+          <li><input data-task="tue-leak-meter" type="checkbox"/><label>Spray meter/house-side test connection.</label></li>
+          <li><input data-task="tue-leak-water-heater" type="checkbox"/><label>Spray water heater cap/plug.</label></li>
+          <li><input data-task="tue-leak-hvac" type="checkbox"/><label>Spray HVAC/furnace cap/plug.</label></li>
+          <li><input data-task="tue-leak-dryer" type="checkbox"/><label>Spray dryer cap/plug.</label></li>
+          <li><input data-task="tue-leak-stove" type="checkbox"/><label>Spray stove cap/plug.</label></li>
+          <li><input data-task="tue-leak-fireplace" type="checkbox"/><label>Spray fireplace valve/cap area.</label></li>
+          <li><input data-task="tue-leak-visible" type="checkbox"/><label>Spray visible unions, tees, elbows, couplings, sediment traps, and valves.</label></li>
+        </ul>
+        <h3>Step 8: Let the Gauge Sit and Monitor</h3>
+        <ul class="checklist">
+          <li><input data-task="tue-reach-pressure" type="checkbox"/><label>Reach required pressure and stop pumping.</label></li>
+          <li><input data-task="tue-photo-gauge" type="checkbox"/><label>Take a photo of the gauge.</label></li>
+          <li><input data-task="tue-watch-drop" type="checkbox"/><label>Watch for pressure drop.</label></li>
+          <li><input data-task="tue-fix-if-drop" type="checkbox"/><label>If the gauge drops, find and fix the leak before leaving overnight.</label></li>
+          <li><input data-task="tue-overnight-note" type="checkbox"/><label>Leave system pressurized overnight. Record gauge reading and time for comparison Wednesday morning.</label></li>
+        </ul>
+        <div class="alert warning"><strong>Overnight hold:</strong> The system should hold pressure overnight. Check the gauge Wednesday morning before the inspector arrives. If pressure dropped overnight, investigate and fix before the inspection.</div>
+      </div>
+    </details>
+
+    <details id="section-inspection" open="">
+      <summary><span class="chevron">&#9654;</span> Wednesday &mdash; County Inspection Readiness <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <ul class="checklist">
+          <li><input data-task="inspect-morning-check" type="checkbox"/><label>Check gauge Wednesday morning &mdash; confirm pressure held overnight.</label></li>
+          <li><input data-task="inspect-permit" type="checkbox"/><label>Permit or job card ready.</label></li>
+          <li><input data-task="inspect-gauge-visible" type="checkbox"/><label>Gauge visible and accessible.</label></li>
+          <li><input data-task="inspect-appliances-capped" type="checkbox"/><label>Appliances disconnected and capped.</label></li>
+          <li><input data-task="inspect-holding" type="checkbox"/><label>Gauge holding required pressure.</label></li>
+          <li><input data-task="inspect-access" type="checkbox"/><label>Access available to fireplace, stove, dryer, HVAC/furnace, and water heater areas.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="section-meter-bleed" open="">
+      <summary><span class="chevron">&#9654;</span> Meter Disconnect, Bleed-Off, and Return-to-Service Safety Notes <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <div class="alert danger">
+          <strong>High-risk work area:</strong> Opening the house gas piping at the meter, bleeding natural gas, reconnecting the meter connection, purging air, and relighting appliances are the highest-risk steps in this plan. Use this section as a safety checklist, not as a substitute for a licensed plumber, PG&amp;E guidance, or El Dorado County requirements.
+        </div>
+        <h3>Before disconnecting from the meter</h3>
+        <ul class="checklist">
+          <li><input data-task="meter-confirm-county" type="checkbox"/><label>Confirm with El Dorado County that the gauge may be installed at the house-side meter connection.</label></li>
+          <li><input data-task="meter-confirm-pressure" type="checkbox"/><label>Confirm required test pressure, duration, and gauge range before starting work.</label></li>
+          <li><input data-task="meter-confirm-utility" type="checkbox"/><label>Confirm you are only working on the house-side piping and not disturbing the PG&amp;E/utility side.</label></li>
+          <li><input data-task="meter-appliances-off" type="checkbox"/><label>Confirm all gas appliances are turned off before shutting down gas.</label></li>
+          <li><input data-task="meter-ventilate" type="checkbox"/><label>Ventilate nearby areas and remove ignition sources before opening gas piping.</label></li>
+          <li><input data-task="meter-emergency-ready" type="checkbox"/><label>Have PG&amp;E/emergency contact information available before starting.</label></li>
+        </ul>
+        <h3>Meter-side disconnect concept</h3>
+        <div class="alert warning">
+          <strong>Concept only:</strong> The meter/utility side stays shut off and isolated. The test gauge connects to the <strong>house-side piping only</strong>. Do not pressurize the meter or PG&amp;E side.
+        </div>
+        <ul class="checklist">
+          <li><input data-task="meter-gas-off" type="checkbox"/><label>Gas shut off at the meter/service valve.</label></li>
+          <li><input data-task="meter-house-side-identified" type="checkbox"/><label>House-side meter connection clearly identified.</label></li>
+          <li><input data-task="meter-utility-side-isolated" type="checkbox"/><label>Utility/meter side left isolated and not pressurized.</label></li>
+          <li><input data-task="meter-gauge-house-side" type="checkbox"/><label>Gauge/test assembly planned for the house-side piping connection.</label></li>
+          <li><input data-task="meter-do-not-test-meter" type="checkbox"/><label>Confirmed: no air pressure will be applied through the gas meter.</label></li>
+        </ul>
+        <h3>Bleeding / depressurizing before opening piping</h3>
+        <div class="alert danger">
+          <strong>Do not casually vent gas indoors.</strong> Any residual gas must be handled safely. If you are unsure how to safely depressurize the house-side piping, stop and have a plumber handle this step.
+        </div>
+        <ul class="checklist">
+          <li><input data-task="bleed-meter-off" type="checkbox"/><label>Meter/service valve confirmed off before opening the house-side piping.</label></li>
+          <li><input data-task="bleed-appliances-off" type="checkbox"/><label>All appliance controls and local shutoff valves confirmed off.</label></li>
+          <li><input data-task="bleed-no-ignition" type="checkbox"/><label>No open flames, smoking, sparks, or ignition sources nearby.</label></li>
+          <li><input data-task="bleed-vent-safe" type="checkbox"/><label>Residual gas handled only in a safe, ventilated manner.</label></li>
+          <li><input data-task="bleed-stop-if-odor" type="checkbox"/><label>If gas odor is strong, persistent, or uncontrolled: stop, leave, and call PG&amp;E/911.</label></li>
+        </ul>
+        <h3>After county inspection: releasing test air pressure</h3>
+        <ul class="checklist">
+          <li><input data-task="air-release-approved" type="checkbox"/><label>Inspection passed before releasing test pressure.</label></li>
+          <li><input data-task="air-release-controlled" type="checkbox"/><label>Test air released in a controlled way from the house-side piping.</label></li>
+          <li><input data-task="air-zero-pressure" type="checkbox"/><label>Gauge reads zero before removing gauge/test assembly.</label></li>
+          <li><input data-task="air-remove-gauge" type="checkbox"/><label>Gauge/test assembly removed only after pressure is fully released.</label></li>
+        </ul>
+        <h3>Return-to-service safety notes</h3>
+        <div class="alert warning">
+          <strong>Important:</strong> After the pressure test, the gas piping contains air, not fuel gas. Reconnecting and purging must be done carefully. A plumber is strongly recommended for reconnecting, purging, relighting, and confirming safe operation.
+        </div>
+        <ul class="checklist">
+          <li><input data-task="service-reconnect-meter" type="checkbox"/><label>House piping reconnected to meter connection.</label></li>
+          <li><input data-task="service-leak-meter" type="checkbox"/><label>Meter/house-side reconnection leak-checked with approved leak detector solution.</label></li>
+          <li><input data-task="service-reconnect-appliances" type="checkbox"/><label>Fireplace, stove, dryer, HVAC/furnace, and water heater reconnected.</label></li>
+          <li><input data-task="service-leak-appliances" type="checkbox"/><label>Every appliance reconnection leak-checked before operation.</label></li>
+          <li><input data-task="service-purge" type="checkbox"/><label>Air purged from gas lines safely before normal operation.</label></li>
+          <li><input data-task="service-restart" type="checkbox"/><label>Each appliance restarted according to manufacturer instructions.</label></li>
+          <li><input data-task="service-observe" type="checkbox"/><label>Each appliance observed for normal flame/operation after restart.</label></li>
+          <li><input data-task="service-gas-odor-check" type="checkbox"/><label>Final odor/leak check completed after all appliances are back in service.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="section-after">
+      <summary><span class="chevron">&#9654;</span> Wednesday Afternoon &mdash; After the Inspection Passes <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <div class="alert danger"><strong>Do not simply remove the gauge and turn gas back on.</strong> The system will contain air from the pressure test. Reconnection, leak-checking, purging, and relighting must be done carefully.</div>
+        <ul class="checklist">
+          <li><input data-task="after-release-pressure" type="checkbox"/><label>Release the test air pressure.</label></li>
+          <li><input data-task="after-remove-gauge" type="checkbox"/><label>Remove the pressure test gauge.</label></li>
+          <li><input data-task="after-reconnect-meter" type="checkbox"/><label>Reconnect the house piping to the meter.</label></li>
+          <li><input data-task="after-reconnect-water-heater" type="checkbox"/><label>Reconnect the water heater.</label></li>
+          <li><input data-task="after-reconnect-hvac" type="checkbox"/><label>Reconnect the HVAC/furnace.</label></li>
+          <li><input data-task="after-reconnect-dryer" type="checkbox"/><label>Reconnect the dryer.</label></li>
+          <li><input data-task="after-reconnect-stove" type="checkbox"/><label>Reconnect the stove.</label></li>
+          <li><input data-task="after-reconnect-fireplace" type="checkbox"/><label>Reconnect the indoor fireplace.</label></li>
+          <li><input data-task="after-leak-check" type="checkbox"/><label>Leak-check every reconnected fitting using leak detector solution.</label></li>
+          <li><input data-task="after-purge" type="checkbox"/><label>Purge air from the gas lines safely.</label></li>
+          <li><input data-task="after-restart" type="checkbox"/><label>Relight or restart each appliance according to manufacturer instructions.</label></li>
+          <li><input data-task="after-confirm" type="checkbox"/><label>Confirm every appliance operates normally.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <details id="section-final" open="">
+      <summary><span class="chevron">&#9654;</span> Final Checklist <span class="count-pill"></span></summary>
+      <div class="section-body">
+        <ul class="checklist">
+          <li><input data-task="final-county-confirmed" type="checkbox"/><label>County pressure/duration requirement confirmed.</label></li>
+          <li><input data-task="final-parts" type="checkbox"/><label>All parts and supplies acquired.</label></li>
+          <li><input data-task="final-photos" type="checkbox"/><label>All appliances photographed before work.</label></li>
+          <li><input data-task="final-gas-off" type="checkbox"/><label>Gas shut off at meter.</label></li>
+          <li><input data-task="final-water-heater" type="checkbox"/><label>Water heater disconnected/capped.</label></li>
+          <li><input data-task="final-hvac" type="checkbox"/><label>HVAC/furnace disconnected/capped.</label></li>
+          <li><input data-task="final-dryer" type="checkbox"/><label>Dryer disconnected/capped.</label></li>
+          <li><input data-task="final-stove" type="checkbox"/><label>Stove disconnected/capped.</label></li>
+          <li><input data-task="final-fireplace" type="checkbox"/><label>Fireplace disconnected/capped or safely isolated.</label></li>
+          <li><input data-task="final-house-meter" type="checkbox"/><label>House piping disconnected from meter.</label></li>
+          <li><input data-task="final-meter-safety-section" type="checkbox"/><label>Meter disconnect, bleed-off, and return-to-service safety checklist reviewed.</label></li>
+          <li><input data-task="final-gauge" type="checkbox"/><label>Gauge installed on house-side piping.</label></li>
+          <li><input data-task="final-pressurized" type="checkbox"/><label>System pressurized to required pressure.</label></li>
+          <li><input data-task="final-leak-checked" type="checkbox"/><label>All caps/plugs leak-checked.</label></li>
+          <li><input data-task="final-holding" type="checkbox"/><label>Gauge holding pressure before inspection.</label></li>
+          <li><input data-task="final-passed" type="checkbox"/><label>Inspection passed.</label></li>
+          <li><input data-task="final-depressurized" type="checkbox"/><label>System depressurized after inspection.</label></li>
+          <li><input data-task="final-meter-restored" type="checkbox"/><label>Meter connection restored.</label></li>
+          <li><input data-task="final-reconnected" type="checkbox"/><label>All appliances reconnected.</label></li>
+          <li><input data-task="final-reconnect-leak" type="checkbox"/><label>All reconnected joints leak-checked.</label></li>
+          <li><input data-task="final-appliances-safe" type="checkbox"/><label>Appliances purged/restarted safely.</label></li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="alert danger"><strong>Emergency Reminder:</strong> If you smell gas, hear gas escaping, feel unsure about a connection, or cannot safely relight an appliance, stop immediately. Leave the area and call PG&amp;E or 911.</div>
+
+  </main>
+</div>
+
+<script>
+    (function () {
+      var PLAN_NAME = "Whole-House Natural Gas Pressure Test Plan";
+      var PLAN_VERSION = 4;
+      var storagePrefix = "gasPressurePlan.v4.";
+      var checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-task]'));
+      var detailsElements = Array.from(document.querySelectorAll('details[id]'));
+      var progressText = document.getElementById('progressText');
+      var progressFill = document.getElementById('progressFill');
+      var progressDetail = document.getElementById('progressDetail');
+
+      function saveCheckbox(box) {
+        localStorage.setItem(storagePrefix + "task." + box.dataset.task, box.checked ? "1" : "0");
+      }
+
+      function loadCheckbox(box) {
+        var saved = localStorage.getItem(storagePrefix + "task." + box.dataset.task);
+        if (saved !== null) box.checked = saved === "1";
+      }
+
+      function saveDetails(det) {
+        localStorage.setItem(storagePrefix + "section." + det.id, det.open ? "1" : "0");
+      }
+
+      function loadDetails(det) {
+        var saved = localStorage.getItem(storagePrefix + "section." + det.id);
+        if (saved !== null) det.open = saved === "1";
+      }
+
+      function updateSectionPills() {
+        detailsElements.forEach(function (section) {
+          var boxes = Array.from(section.querySelectorAll('input[type="checkbox"][data-task]'));
+          var pill = section.querySelector('.count-pill');
+          if (!pill || boxes.length === 0) {
+            if (pill) pill.textContent = "";
+            return;
+          }
+          var done = boxes.filter(function (b) { return b.checked; }).length;
+          var pct = Math.round((done / boxes.length) * 100);
+          pill.textContent = done + "/" + boxes.length + " • " + pct + "%";
+        });
+      }
+
+      function updateProgress() {
+        var total = checkboxes.length;
+        var done = checkboxes.filter(function (b) { return b.checked; }).length;
+        var percent = total === 0 ? 0 : Math.round((done / total) * 100);
+        progressText.textContent = percent + "%";
+        progressFill.style.width = percent + "%";
+        progressDetail.textContent = done + " of " + total + " tasks complete";
+        updateSectionPills();
+      }
+
+      checkboxes.forEach(function (box) {
+        loadCheckbox(box);
+        box.addEventListener('change', function () {
+          saveCheckbox(box);
+          updateProgress();
+        });
+      });
+
+      detailsElements.forEach(function (det) {
+        loadDetails(det);
+        det.addEventListener('toggle', function () { saveDetails(det); });
+      });
+
+      document.getElementById('expandAll').addEventListener('click', function () {
+        detailsElements.forEach(function (d) { d.open = true; saveDetails(d); });
+      });
+
+      document.getElementById('collapseAll').addEventListener('click', function () {
+        detailsElements.forEach(function (d) { d.open = false; saveDetails(d); });
+      });
+
+      document.getElementById('resetProgress').addEventListener('click', function () {
+        var ok = confirm('Reset all saved checkboxes for this plan? Section open/collapsed states will not be changed.');
+        if (!ok) return;
+        checkboxes.forEach(function (box) {
+          box.checked = false;
+          localStorage.removeItem(storagePrefix + "task." + box.dataset.task);
+        });
+        updateProgress();
+      });
+
+      document.getElementById('downloadJSON').addEventListener('click', function () {
+        var tasks = {};
+        checkboxes.forEach(function (box) {
+          tasks[box.dataset.task] = box.checked;
+        });
+        var sections = {};
+        detailsElements.forEach(function (det) {
+          sections[det.id] = det.open;
+        });
+        var data = {
+          planName: PLAN_NAME,
+          version: PLAN_VERSION,
+          exportedAt: new Date().toISOString(),
+          tasks: tasks,
+          sections: sections
+        };
+        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'gas-pressure-test-progress.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      var fileInput = document.getElementById('jsonFileInput');
+
+      document.getElementById('loadJSON').addEventListener('click', function () {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function () {
+        var file = fileInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            var data = JSON.parse(e.target.result);
+            if (!data || typeof data.tasks !== 'object') {
+              alert('Error: This file does not appear to be a valid progress JSON file.');
+              return;
+            }
+            if (data.tasks) {
+              checkboxes.forEach(function (box) {
+                if (data.tasks.hasOwnProperty(box.dataset.task)) {
+                  box.checked = !!data.tasks[box.dataset.task];
+                  saveCheckbox(box);
+                }
+              });
+            }
+            if (data.sections && typeof data.sections === 'object') {
+              detailsElements.forEach(function (det) {
+                if (data.sections.hasOwnProperty(det.id)) {
+                  det.open = !!data.sections[det.id];
+                  saveDetails(det);
+                }
+              });
+            }
+            updateProgress();
+            alert('Progress loaded successfully from "' + file.name + '".');
+          } catch (err) {
+            alert('Error loading progress file: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+        fileInput.value = '';
+      });
+
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>
